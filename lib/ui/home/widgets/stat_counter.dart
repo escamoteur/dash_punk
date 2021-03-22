@@ -1,4 +1,3 @@
-import 'package:binder/binder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_command/flutter_command.dart';
 import 'package:gap/gap.dart';
@@ -8,44 +7,6 @@ import '../logic.dart';
 
 const minStat = 0.0;
 const maxStat = 4.0;
-
-final _canBeDecrementedRef = Computed((watch) {
-  final statDifference = watch(_statDifferenceRef);
-  return statDifference > minStat;
-});
-
-final _canBeIncrementedRef = Computed((watch) {
-  final statDifference = watch(_statDifferenceRef);
-  final remaining = watch(remainingRef);
-  return statDifference < maxStat && remaining > 0;
-});
-
-final _statLogicRef = LogicRef((scope) => _StatLogic(scope, StateRef<int>(0)));
-
-final _statDifferenceRef = Computed((watch) {
-  final statRef = watch(_currentStatRef);
-  final stat = watch(statRef);
-  return stat - statRef.initialState;
-});
-
-class _StatLogic with Logic {
-  const _StatLogic(this.scope, this.statRef);
-
-  @override
-  final Scope scope;
-
-  final StateRef<int> statRef;
-
-  void increment() {
-    write(remainingRef, read(remainingRef) - 1);
-    write(statRef, read(statRef) + 1);
-  }
-
-  void decrement() {
-    write(remainingRef, read(remainingRef) + 1);
-    write(statRef, read(statRef) - 1);
-  }
-}
 
 class StatCounter extends StatelessWidget {
   const StatCounter({

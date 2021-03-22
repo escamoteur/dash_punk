@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_command/flutter_command.dart';
 import 'package:gap/gap.dart';
 import 'package:get_it/get_it.dart';
 import 'package:get_it_mixin/get_it_mixin.dart';
@@ -140,7 +139,7 @@ class Level extends StatelessWidget with GetItMixin {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final level = watchOnly((Model x) => x.level);
+    final level = watchX((Model x) => x.levelUpCommand);
 
     return Text(
       'Level $level',
@@ -168,20 +167,19 @@ class RemainingPoints extends StatelessWidget with GetItMixin {
 
 @visibleForTesting
 class LevelUpButton extends StatelessWidget with GetItMixin {
-  final int delta;
-  final Command<int, int> command;
   LevelUpButton({
     Key? key,
-    required this.command,
-    required this.delta,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final bool enabled = watch(target: command.canExecute);
+    final bool enabled = watchX((Model x) => x.levelUpCommand.canExecute);
 
     return OutlinedButton(
-      onPressed: enabled ? () => command(delta) : null,
+      // that we have use `execute` and can't just use the plain command is
+      // currently an ulgy limitition of Dart
+      // https://github.com/dart-lang/language/issues/1333#issuecomment-780476573
+      onPressed: enabled ? get<Model>().levelUpCommand.execute : null,
       child: const Text('Level up'),
     );
   }

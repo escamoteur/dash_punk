@@ -11,8 +11,13 @@ import 'package:flutter_command/flutter_command.dart';
 class Model extends ChangeNotifier {
   String name = 'Dash Punk';
   int remaining = 8;
-  int level = 0;
   final statCommands = <Command<int, int>>[];
+  late Command<void, int> levelUpCommand;
+
+  Model() {
+    levelUpCommand =
+        Command.createSync<void, int>((x) => levelUpCommand.value + 1, 0);
+  }
 }
 
 enum Stat {
