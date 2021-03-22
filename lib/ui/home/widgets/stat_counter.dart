@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_command/flutter_command.dart';
 import 'package:gap/gap.dart';
+import 'package:get_it_mixin/get_it_mixin.dart';
 
 import '../../../theme/colors.dart';
 import '../logic.dart';
@@ -33,9 +35,12 @@ class StatCounter extends StatelessWidget {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: const [
-          Gap(16),
-          Expanded(child: StatName()),
+        children: [
+          const Gap(16),
+          Expanded(
+              child: StatName(
+            name: label,
+          )),
           StatValue(),
           Gap(16),
           Difference(),
@@ -50,13 +55,14 @@ class StatCounter extends StatelessWidget {
 
 @visibleForTesting
 class StatName extends StatelessWidget {
+  final String name;
   const StatName({
     Key? key,
+    required this.name,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final name = context.watch(_statNameRef).toUpperCase();
     final textTheme = Theme.of(context).textTheme;
     return Text(
       name,
@@ -66,18 +72,17 @@ class StatName extends StatelessWidget {
 }
 
 @visibleForTesting
-class StatValue extends StatelessWidget {
-  const StatValue({
-    Key? key,
-  }) : super(key: key);
+class StatValue extends StatelessWidget with GetItMixin {
+  ValueListenable<int> stat;
+  StatValue({Key? key, required this.stat}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final stat = context.watch(_currentStatRef).initialState;
+    final int statValue = watch(target: stat);
     final textTheme = Theme.of(context).textTheme;
 
     return Text(
-      '$stat',
+      '$statValue',
       style: textTheme.headline6!.copyWith(
         fontWeight: FontWeight.bold,
         color: FlutterColors.blue,
@@ -88,6 +93,7 @@ class StatValue extends StatelessWidget {
 
 @visibleForTesting
 class Difference extends StatelessWidget {
+  ValueListenable<int> stat;
   const Difference({
     Key? key,
   }) : super(key: key);
