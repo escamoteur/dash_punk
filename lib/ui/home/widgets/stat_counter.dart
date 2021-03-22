@@ -1,5 +1,6 @@
 import 'package:binder/binder.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_command/flutter_command.dart';
 import 'package:gap/gap.dart';
 
 import '../../../theme/colors.dart';
@@ -8,10 +9,6 @@ import '../logic.dart';
 const minStat = 0.0;
 const maxStat = 4.0;
 
-final _statNameRef = StateRef('');
-
-final _currentStatRef = StateRef<StateRef<int>>(null);
-
 final _canBeDecrementedRef = Computed((watch) {
   final statDifference = watch(_statDifferenceRef);
   return statDifference > minStat;
@@ -19,8 +16,8 @@ final _canBeDecrementedRef = Computed((watch) {
 
 final _canBeIncrementedRef = Computed((watch) {
   final statDifference = watch(_statDifferenceRef);
-  final unaffected = watch(unaffectedRef);
-  return statDifference < maxStat && unaffected > 0;
+  final remaining = watch(remainingRef);
+  return statDifference < maxStat && remaining > 0;
 });
 
 final _statLogicRef = LogicRef((scope) => _StatLogic(scope, StateRef<int>(0)));
@@ -40,12 +37,12 @@ class _StatLogic with Logic {
   final StateRef<int> statRef;
 
   void increment() {
-    write(unaffectedRef, read(unaffectedRef) - 1);
+    write(remainingRef, read(remainingRef) - 1);
     write(statRef, read(statRef) + 1);
   }
 
   void decrement() {
-    write(unaffectedRef, read(unaffectedRef) + 1);
+    write(remainingRef, read(remainingRef) + 1);
     write(statRef, read(statRef) - 1);
   }
 }
@@ -54,44 +51,37 @@ class StatCounter extends StatelessWidget {
   const StatCounter({
     Key? key,
     required this.label,
-    required this.statRef,
+    required this.command,
   }) : super(key: key);
 
   final String label;
-  final StateRef<int> statRef;
+  final Command<int, int> command;
 
   @override
   Widget build(BuildContext context) {
-    return BinderScope(
-      overrides: [
-        _statNameRef.overrideWith(label),
-        _currentStatRef.overrideWith(statRef),
-        _statLogicRef.overrideWith((scope) => _StatLogic(scope, statRef)),
-      ],
-      child: Container(
-        margin: const EdgeInsets.all(8),
-        decoration: ShapeDecoration(
-          color: FlutterColors.secondary.withOpacity(0.1),
-          shape: const StadiumBorder(
-            side: BorderSide(
-              color: FlutterColors.secondary,
-              width: 2,
-            ),
+    return Container(
+      margin: const EdgeInsets.all(8),
+      decoration: ShapeDecoration(
+        color: FlutterColors.secondary.withOpacity(0.1),
+        shape: const StadiumBorder(
+          side: BorderSide(
+            color: FlutterColors.secondary,
+            width: 2,
           ),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: const [
-            Gap(16),
-            Expanded(child: StatName()),
-            StatValue(),
-            Gap(16),
-            Difference(),
-            Gap(32),
-            DecrementButton(),
-            IncrementButton(),
-          ],
-        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: const [
+          Gap(16),
+          Expanded(child: StatName()),
+          StatValue(),
+          Gap(16),
+          Difference(),
+          Gap(32),
+          DecrementButton(),
+          IncrementButton(),
+        ],
       ),
     );
   }

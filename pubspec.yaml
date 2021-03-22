@@ -25,7 +25,9 @@ dependencies:
     sdk: flutter
 
 
-  binder: ^0.3.1
+  get_it: ^6.0.0
+  get_it_mixin: ^2.0.1
+  flutter_command: ^2.0.0
   cupertino_icons: ^1.0.2
   gap: ^2.0.0-nullsafety.1
 
